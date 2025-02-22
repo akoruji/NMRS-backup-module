@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.2//EN" "http://resources.openmrs.org/doctype/config-1.2.dtd">
+
+<module configVersion="1.2">
+	
+	<!-- Base Module Properties -->
+	<id>databasebackup</id>
+	<name>Database Backup Module</name>
+	<version>1.4.0-SNAPSHOT</version>
+	<package>org.openmrs.module.databasebackup</package>
+	<author>Mathias Lin</author>
+	<description>
+            Backup database through the OpenMRS administration interface.
+	</description>
+
+	<activator>org.openmrs.module.databasebackup.DatabaseBackupActivator</activator>
+	
+	<!-- <updateURL>https://dev.openmrs.org/modules/download/databasebackup/update.rdf</updateURL> -->
+	<!-- /Base Module Properties -->
+	
+	<require_version>1.5</require_version>
+	
+	<aware_of_modules>
+	    <aware_of_module>org.openmrs.module.legacyui</aware_of_module>
+	</aware_of_modules>
+	
+	<!-- Extensions -->
+	<extension>
+		<point>org.openmrs.admin.list</point>
+		<class>org.openmrs.module.databasebackup.extension.html.AdminList</class>
+	</extension>
+	
+
+	<!-- Required Global Properties -->
+	<globalProperty>
+		<property>databasebackup.tablesIncluded</property>
+		<defaultValue>all</defaultValue>
+		<description>
+			Enter the tables to be included into the backup comma separated (i.e.: cohort, concept) into field 'databasebackup.tablesIncluded' or use 'all' (default) to include all.
+			Explicitly entered table names overrule any eventual 'all' or 'none' entries in the opposite settings field.
+		</description>
+	</globalProperty>
+    <globalProperty>
+		<property>databasebackup.tablesExcluded</property>
+		<defaultValue>none</defaultValue>
+		<description>
+			Enter the tables to be excluded from the backup comma separated (i.e.: hl7_in_archive, hl7_in_error) into field 'databasebackup.tablesExcluded' or use 'all' (default) to exclude all. If you don't want to exclude any tables, you could also leave it to the default value 'none'.
+			Explicitly entered table names overrule any eventual 'all' or 'none' entries in the opposite settings field.
+		</description>
+	</globalProperty>  
+    <globalProperty>
+        <property>databasebackup.folderPath</property>
+        <defaultValue>backup</defaultValue>
+        <description>
+            Path to the backup folder. You can either enter an absolute path 
+            (i.e. 'C:/backup') or a relative path (i.e. like the default value 'backup') which is relative to the
+            OpenMRS application data directory.
+        </description>
+    </globalProperty>
+            
+    <dwr>
+        <allow>
+            <create creator="new" javascript="BackupFormController">
+                <param name="class" value="org.openmrs.module.databasebackup.web.controller.BackupFormController"/>
+                <!-- <include method="getProgress"/> -->
+            </create>
+        </allow>                 
+    </dwr>
+	
+	<!-- Internationalization -->
+	<!-- All message codes should start with databasebackup.* -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>	
+	<!-- /Internationalization -->
+	
+</module>
+

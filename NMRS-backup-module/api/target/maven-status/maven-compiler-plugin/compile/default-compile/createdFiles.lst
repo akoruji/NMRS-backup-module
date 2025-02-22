@@ -1,0 +1,6 @@
+org\openmrs\module\databasebackup\DatabaseBackupTask.class
+org\openmrs\module\databasebackup\util\DbDump.class
+org\openmrs\module\databasebackup\DatabaseBackupActivator.class
+org\openmrs\module\databasebackup\extension\html\AdminList.class
+org\openmrs\module\databasebackup\DatabaseBackupTask$1.class
+org\openmrs\module\databasebackup\util\Zip.class
