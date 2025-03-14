@@ -1,0 +1,3 @@
+org\openmrs\module\databasebackup\web\controller\BackupFormController.class
+org\openmrs\module\databasebackup\web\controller\DownloadBackupController.class
+org\openmrs\module\databasebackup\web\controller\BackupSettingsController.class
