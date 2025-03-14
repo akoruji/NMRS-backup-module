@@ -1,4 +1,0 @@
-2025-03-14 00:52:14 ERROR - DbDump.dumpTable(208) |2025-03-13 23:52:14,183| Unable to dump table encounter_copy. java.sql.SQLException: Value '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp
-
-Fix: 
-SET GLOBAL sql_mode = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
