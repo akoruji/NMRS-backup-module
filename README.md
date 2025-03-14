@@ -67,8 +67,14 @@ Integrate the backup functionality by calling the static method `DbDump.dumpDB(P
 
 ## Troubleshooting
 
+- **Data import issues:**  
+  If you encounter: Unable to dump table encounter_copy. java.sql.SQLException: Value '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp.
+  **Fix:**
+  SET GLOBAL sql_mode = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
+
 - **Connection Issues:**  
   Verify your JDBC URL, username, and password.
+
   
 - **Permission Errors:**  
   Ensure the specified backup folder is writable by the OpenMRS process.
