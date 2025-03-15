@@ -144,70 +144,73 @@ public class DbDump {
      * @param result The writer to the backup file.
      * @param tableName The name of the table to dump.
      */
-    private static void dumpTable(Connection dbConn, OutputStreamWriter result, String tableName) {
-        try {
-            int max = 10000;
-            Statement s = dbConn.createStatement();
-            ResultSet r = s.executeQuery("SELECT COUNT(*) AS rowcount FROM " + tableName);
-            r.next();
-            int count = r.getInt("rowcount");
-            r.close();
+    // Dump table data
+private static void dumpTable(Connection dbConn, OutputStreamWriter result, String tableName) {
+    try {
+        int max = 10000;
+        Statement s = dbConn.createStatement();
+        ResultSet r = s.executeQuery("SELECT COUNT(*) AS rowcount FROM " + tableName);
+        r.next();
+        int count = r.getInt("rowcount");
+        r.close();
 
-            int offset = 0;
-            result.write("\n\n-- Data for table `" + tableName + "`\n");
+        int offset = 0;
+        result.write("\n\n-- Data for table `" + tableName + "`\n");
 
-            while (offset < count) {
-                PreparedStatement stmt = dbConn.prepareStatement("SELECT * FROM " + tableName + " LIMIT " + offset + ", " + max);
-                ResultSet rs = stmt.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
+        while (offset < count) {
+            PreparedStatement stmt = dbConn.prepareStatement("SELECT * FROM " + tableName + " LIMIT " + offset + ", " + max);
+            ResultSet rs = stmt.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
 
-                // Build column header string
-                StringBuilder dataHeaders = new StringBuilder("(" + metaData.getColumnName(1));
-                for (int i = 2; i <= columnCount; i++) {
-                    dataHeaders.append(", ").append(metaData.getColumnName(i));
+            // Build column header string
+            StringBuilder dataHeaders = new StringBuilder("(" + metaData.getColumnName(1));
+            for (int i = 2; i <= columnCount; i++) {
+                dataHeaders.append(", ").append(metaData.getColumnName(i));
+            }
+            dataHeaders.append(")");
+
+            boolean firstRow = true;
+            while (rs.next()) {
+                if (firstRow) {
+                    result.write("INSERT INTO `" + tableName + "` " + dataHeaders.toString() + " VALUES ");
+                    firstRow = false;
+                } else {
+                    result.write(", ");
                 }
-                dataHeaders.append(")");
 
-                boolean firstRow = true;
-                while (rs.next()) {
-                    if (firstRow) {
-                        result.write("INSERT INTO `" + tableName + "` " + dataHeaders.toString() + " VALUES ");
-                        firstRow = false;
-                    } else {
+                result.write("(");
+                for (int i = 1; i <= columnCount; i++) {
+                    if (i > 1) {
                         result.write(", ");
                     }
-                    
-                    result.write("(");
-                    for (int i = 0; i < columnCount; i++) {
-                        if (i > 0) {
-                            result.write(", ");
-                        }
-                        Object value = rs.getObject(i + 1);
-                        if (value == null) {
-                            result.write("NULL");
-                        } else {
-                            String outputValue = value.toString();
-                            if (value instanceof Boolean) {
-                                outputValue = ((Boolean)value) ? "1" : "0";
-                            }
-                            outputValue = escape(outputValue);
-                            result.write("'" + outputValue + "'");
-                        }
+                    Object value = rs.getObject(i);
+                    int columnType = metaData.getColumnType(i);  // Get column data type
+
+                    if (value == null) {
+                        result.write("NULL");
+                    } else if (columnType == Types.BIT || columnType == Types.TINYINT) {
+                        // Ensure boolean and tinyint values are inserted correctly
+                        result.write(value.toString().equals("true") ? "1" : "0");
+                    } else {
+                        String outputValue = value.toString();
+                        outputValue = escape(outputValue);  // Escape special characters
+                        result.write("'" + outputValue + "'");
                     }
-                    result.write(")");
                 }
-                if (!firstRow) {
-                    result.write(";\n");
-                }
-                rs.close();
-                stmt.close();
-                offset += max;
+                result.write(")");
             }
-        } catch (SQLException | IOException e) {
-            log.error("Unable to dump table " + tableName + ". " + e);
+            if (!firstRow) {
+                result.write(";\n");
+            }
+            rs.close();
+            stmt.close();
+            offset += max;
         }
+    } catch (SQLException | IOException e) {
+        log.error("Unable to dump table " + tableName + ". " + e);
     }
+}
     
     /**
      * Dumps view definitions from the database.
